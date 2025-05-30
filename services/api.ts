@@ -3,7 +3,7 @@ export const TMDB_CONFIG = {
   API_KEY: process.env.EXPO_PUBLIC_MOVIE_API_KEY,
   headers: {
     accept: "application/json",
-    Authorization: `Bearer ${process.env.EXPO_PUBLIC_MOVIE_API_TOKEN}`,
+    Authorization: `Bearer ${process.env.EXPO_PUBLIC_MOVIE_API_KEY}`,
   },
 };
 
@@ -13,10 +13,7 @@ export const fetchMovies = async ({ query }: { query: string }) => {
     : `${TMDB_CONFIG.BASE_URL}/discover/movie?sort_by=popularity.desc`;
   const response = await fetch(endpoint, {
     method: "GET",
-    headers: {
-      ...TMDB_CONFIG.headers,
-      "Content-Type": "application/json",
-    },
+    headers: TMDB_CONFIG.headers,
   });
   if (!response.ok) {
     throw new Error(`Error fetching movies: ${response.statusText}`);
@@ -25,16 +22,20 @@ export const fetchMovies = async ({ query }: { query: string }) => {
   return data.results;
 };
 
-// const url = 'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc';
-// const options = {
-//   method: 'GET',
-//   headers: {
-//     accept: 'application/json',
-//     Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZDAxMWIyNjBhMjdjYzVmOTg1YzdhZWVhMmM2Nzg0NCIsIm5iZiI6MTc0ODQyNTkyOC42NzUsInN1YiI6IjY4MzZkY2M4NzRiZjhhZTUzZjJiODFiNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.LFYdUzKwTQHJC9lDTtrJ9chAJibqGOGsa9BoGpJWc70'
-//   }
-// };
-
-// fetch(url, options)
-//   .then(res => res.json())
-//   .then(json => console.log(json))
-//   .catch(err => console.error(err));
+export const fetchMovDetail = async (movieId:string):Promise<MovieDetails> => {
+  try {
+    const resp = await fetch(`${TMDB_CONFIG.BASE_URL}/movie/${movieId}?api_key=${TMDB_CONFIG.API_KEY}`, {
+      method: 'GET',
+      headers:TMDB_CONFIG.headers
+    })
+    if (!resp.ok) {
+      throw new Error('Failed to fetch movie details')
+    }
+    const data = await resp.json();
+    return data;
+  } catch (err)
+  {
+    console.log(err);
+    throw err;
+  }
+}
